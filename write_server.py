@@ -1,4 +1,4 @@
-import sys
+content = """import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -52,3 +52,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
+
+with open("server/app.py", "w") as f:
+    f.write(content)
+
+print("Done!")
