@@ -1,0 +1,15 @@
+name: email-triage-env
+version: "1.0.0"
+description: "An RL environment for triaging emails into categories and priorities"
+tags:
+  - openenv
+  - real-world
+  - email
+  - triage
+tasks:
+  - name: spam_detection
+    difficulty: easy
+  - name: email_categorization
+    difficulty: medium
+  - name: inbox_triage
+    difficulty: hard
