@@ -20,11 +20,12 @@ class StepRequest(BaseModel):
     action: str
 
 @app.post("/reset")
-def reset(request: ResetRequest):
-    env = EmailTriageEnv(task_name=request.task_name)
+def reset(request: ResetRequest = None):
+    task_name = request.task_name if request else "spam_detection"
+    env = EmailTriageEnv(task_name=task_name)
     obs = env.reset()
-    envs[request.task_name] = env
-    return {"session_id": request.task_name, "observation": obs.dict()}
+    envs[task_name] = env
+    return {"session_id": task_name, "observation": obs.dict()}
 
 @app.post("/step")
 def step(request: StepRequest):
