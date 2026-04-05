@@ -3,11 +3,12 @@ import json
 from openai import OpenAI
 from env.environment import EmailTriageEnv
 from env.models import Action
+from typing import List, Optional
 
-# Environment variables
+# Environment variables — defaults mandatory!
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
-HF_TOKEN = os.getenv("HF_TOKEN")
+HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
 
 if HF_TOKEN is None:
     raise ValueError("HF_TOKEN environment variable is required")
@@ -24,6 +25,18 @@ Given an email, you must respond with ONLY a JSON object like this:
 }
 No explanation. No extra text. Just the JSON.
 """
+
+def log_start(task: str, env: str, model: str) -> None:
+    print(f"[START] task={task} env={env} model={model}", flush=True)
+
+def log_step(step: int, action: str, reward: float, done: bool, error: Optional[str]) -> None:
+    error_val = error if error else "null"
+    done_val = str(done).lower()
+    print(f"[STEP] step={step} action={action} reward={reward:.2f} done={done_val} error={error_val}", flush=True)
+
+def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
+    rewards_str = ",".join(f"{r:.2f}" for r in rewards)
+    print(f"[END] success={str(success).lower()} steps={steps} score={score:.2f} rewards={rewards_str}", flush=True)
 
 def get_action(obs) -> Action:
     user_prompt = f"""
@@ -52,31 +65,30 @@ Classify this email.
         print(f"[DEBUG] Error: {e}", flush=True)
         return Action(category="spam", priority="low", action="delete")
 
-
 def run_task(task_name: str):
     env = EmailTriageEnv(task_name=task_name)
     obs = env.reset()
-
-    print(f"[START] task={task_name} env=email-triage-env model={MODEL_NAME}", flush=True)
-
-    rewards = []
+    rewards: List[float] = []
     step = 0
     done = False
+    score = 0.0
+    success = False
 
-    while not done:
-        step += 1
-        action = get_action(obs)
-        obs, reward, done, info = env.step(action)
-        rewards.append(reward)
+    log_start(task=task_name, env="email-triage-env", model=MODEL_NAME)
 
-        print(f"[STEP] step={step} action={action.category}/{action.priority}/{action.action} reward={reward:.2f} done={str(done).lower()} error=null", flush=True)
+    try:
+        while not done:
+            step += 1
+            action = get_action(obs)
+            obs, reward, done, info = env.step(action)
+            rewards.append(reward)
+            log_step(step=step, action=f"{action.category}/{action.priority}/{action.action}", reward=reward, done=done, error=None)
 
-    score = sum(rewards) / len(rewards) if rewards else 0.0
-    score = min(max(score, 0.0), 1.0)
-    success = score >= 0.5
-    rewards_str = ",".join(f"{r:.2f}" for r in rewards)
-    print(f"[END] success={str(success).lower()} steps={step} score={score:.2f} rewards={rewards_str}", flush=True)
-
+        score = sum(rewards) / len(rewards) if rewards else 0.0
+        score = min(max(score, 0.0), 1.0)
+        success = score >= 0.5
+    finally:
+        log_end(success=success, steps=step, score=score, rewards=rewards)
 
 if __name__ == "__main__":
     for task in ["spam_detection", "email_categorization", "inbox_triage"]:
