@@ -1,11 +1,12 @@
 import os
+import json
 from openai import OpenAI
 from env.environment import EmailTriageEnv
 from env.models import Action
 
 # Environment variables
-API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 if HF_TOKEN is None:
@@ -34,27 +35,29 @@ Body: {obs.email.body}
 
 Classify this email.
 """
-    response = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_prompt}
-        ],
-        temperature=0.0,
-        max_tokens=100
-    )
-
-    import json
-    text = response.choices[0].message.content.strip()
-    data = json.loads(text)
-    return Action(**data)
+    try:
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0.0,
+            max_tokens=100
+        )
+        text = response.choices[0].message.content.strip()
+        data = json.loads(text)
+        return Action(**data)
+    except Exception as e:
+        print(f"[DEBUG] Error: {e}", flush=True)
+        return Action(category="spam", priority="low", action="delete")
 
 
 def run_task(task_name: str):
     env = EmailTriageEnv(task_name=task_name)
     obs = env.reset()
 
-    print(f"[START] task={task_name} env=email-triage-env model={MODEL_NAME}")
+    print(f"[START] task={task_name} env=email-triage-env model={MODEL_NAME}", flush=True)
 
     rewards = []
     step = 0
@@ -66,11 +69,13 @@ def run_task(task_name: str):
         obs, reward, done, info = env.step(action)
         rewards.append(reward)
 
-        print(f"[STEP] step={step} action={action.category}/{action.priority}/{action.action} reward={reward:.2f} done={str(done).lower()} error=null")
+        print(f"[STEP] step={step} action={action.category}/{action.priority}/{action.action} reward={reward:.2f} done={str(done).lower()} error=null", flush=True)
 
-    success = sum(rewards) / len(rewards) >= 0.5
+    score = sum(rewards) / len(rewards) if rewards else 0.0
+    score = min(max(score, 0.0), 1.0)
+    success = score >= 0.5
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
-    print(f"[END] success={str(success).lower()} steps={step} rewards={rewards_str}")
+    print(f"[END] success={str(success).lower()} steps={step} score={score:.2f} rewards={rewards_str}", flush=True)
 
 
 if __name__ == "__main__":

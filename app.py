@@ -45,7 +45,14 @@ def state(session_id: str):
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "healthy"}
+
+@app.get("/metadata")
+def metadata():
+    return {
+        "name": "email-triage-env",
+        "description": "An RL environment for triaging emails"
+    }
 
 def main():
     import uvicorn
