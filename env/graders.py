@@ -1,45 +1,23 @@
-from env.models import Action, Reward
-
+from env.models import Reward
 
 def safe_score(raw: float) -> float:
-    """Score must be strictly between 0 and 1 per OpenEnv spec."""
+    # STRICT (0,1)
     return max(0.001, min(0.999, float(raw)))
 
-
-def grade_action(action: Action, expected: dict) -> Reward:
+def grade_action(action, expected):
     score = 0.0
-    category_correct = False
-    priority_correct = False
-    action_correct = False
 
-    # Category check — 40%
+    # partial rewards
     if action.category == expected["category"]:
         score += 0.4
-        category_correct = True
 
-    # Priority check — 30%
     if action.priority == expected["priority"]:
         score += 0.3
-        priority_correct = True
 
-    # Action check — 30%
     if action.action == expected["action"]:
         score += 0.3
-        action_correct = True
 
-    # Penalty — wrong urgent classification
-    if action.category == "urgent" and expected["category"] == "spam":
-        score -= 0.3
-
-    # Clamp score strictly between 0.001 and 0.999 per OpenEnv spec
+    # 🚨 MOST IMPORTANT LINE
     score = safe_score(score)
 
-    reason = f"Category={'✅' if category_correct else '❌'} Priority={'✅' if priority_correct else '❌'} Action={'✅' if action_correct else '❌'}"
-
-    return Reward(
-        score=score,
-        category_correct=category_correct,
-        priority_correct=priority_correct,
-        action_correct=action_correct,
-        reason=reason
-    )
+    return Reward(score=score)
