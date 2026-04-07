@@ -1,4 +1,7 @@
-﻿On branch main
-Your branch is up to date with 'origin/main'.
+﻿from fastapi import FastAPI
 
-nothing to commit, working tree clean
+app = FastAPI()
+
+@app.get("/")
+def home():
+    return {"message": "Server is running successfully 🚀"}
