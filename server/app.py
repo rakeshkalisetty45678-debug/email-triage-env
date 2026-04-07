@@ -10,6 +10,10 @@ from env.models import Action
 app = FastAPI()
 envs = {}
 
+def safe_score(raw: float) -> float:
+    """Score must be strictly between 0 and 1 per OpenEnv spec."""
+    return max(0.001, min(0.999, float(raw)))
+
 class ResetRequest(BaseModel):
     task_name: str = "spam_detection"
 
@@ -20,11 +24,12 @@ class StepRequest(BaseModel):
     action: str
 
 @app.post("/reset")
-def reset(request: ResetRequest):
-    env = EmailTriageEnv(task_name=request.task_name)
+def reset(request: ResetRequest = None):
+    task_name = request.task_name if request else "spam_detection"
+    env = EmailTriageEnv(task_name=task_name)
     obs = env.reset()
-    envs[request.task_name] = env
-    return {"session_id": request.task_name, "observation": obs.dict()}
+    envs[task_name] = env
+    return {"session_id": task_name, "observation": obs.dict()}
 
 @app.post("/step")
 def step(request: StepRequest):
@@ -33,7 +38,12 @@ def step(request: StepRequest):
         return {"error": "Session not found"}
     action = Action(category=request.category, priority=request.priority, action=request.action)
     obs, reward, done, info = env.step(action)
-    return {"observation": obs.dict(), "reward": reward, "done": done}
+    return {
+        "observation": obs.dict(),
+        "reward": safe_score(reward),
+        "score": safe_score(reward),
+        "done": done
+    }
 
 @app.get("/state")
 def state(session_id: str):
@@ -44,7 +54,14 @@ def state(session_id: str):
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "healthy"}
+
+@app.get("/metadata")
+def metadata():
+    return {
+        "name": "email-triage-env",
+        "description": "An RL environment for triaging emails"
+    }
 
 def main():
     import uvicorn
