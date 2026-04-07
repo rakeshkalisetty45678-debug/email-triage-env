@@ -10,6 +10,10 @@ from env.models import Action
 app = FastAPI()
 envs = {}
 
+def safe_score(raw: float) -> float:
+    """Score must be strictly between 0 and 1 per OpenEnv spec."""
+    return max(0.001, min(0.999, float(raw)))
+
 class ResetRequest(BaseModel):
     task_name: str = "spam_detection"
 
@@ -18,6 +22,10 @@ class StepRequest(BaseModel):
     category: str
     priority: str
     action: str
+
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "Email Triage Environment is running."}
 
 @app.post("/reset")
 def reset(request: ResetRequest = None):
@@ -34,7 +42,12 @@ def step(request: StepRequest):
         return {"error": "Session not found"}
     action = Action(category=request.category, priority=request.priority, action=request.action)
     obs, reward, done, info = env.step(action)
-    return {"observation": obs.dict(), "reward": reward, "done": done}
+    return {
+        "observation": obs.dict(),
+        "reward": safe_score(reward),
+        "score": safe_score(reward),
+        "done": done
+    }
 
 @app.get("/state")
 def state(session_id: str):

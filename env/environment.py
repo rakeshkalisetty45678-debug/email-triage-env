@@ -24,12 +24,15 @@ class EmailTriageEnv:
 
     def step(self, action: Action):
         if self.done:
-            return self._get_observation(), 0.0, True, {}
+            return self._get_observation(), 0.01, True, {}
 
         # Grade current action
         expected = self.emails[self.current_email_index]["expected"]
         reward_obj = grade_action(action, expected)
-        reward = reward_obj.score
+
+        # 🔥 IMPORTANT FIX: ensure reward strictly between (0,1)
+        raw_reward = reward_obj.score
+        reward = max(0.01, min(0.99, float(raw_reward)))
 
         self.rewards.append(reward)
         self.current_step += 1
