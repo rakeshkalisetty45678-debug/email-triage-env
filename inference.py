@@ -38,6 +38,10 @@ def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> No
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
     print(f"[END] success={str(success).lower()} steps={steps} score={score:.2f} rewards={rewards_str}", flush=True)
 
+def safe_score(raw: float) -> float:
+    """Score must be strictly between 0 and 1 per OpenEnv spec."""
+    return max(0.001, min(0.999, float(raw)))
+
 def get_action(obs) -> Action:
     user_prompt = f"""
 Task: {obs.task_description}
@@ -45,7 +49,6 @@ Email ID: {obs.email.id}
 Subject: {obs.email.subject}
 Sender: {obs.email.sender}
 Body: {obs.email.body}
-
 Classify this email.
 """
     try:
@@ -82,11 +85,18 @@ def run_task(task_name: str):
             action = get_action(obs)
             obs, reward, done, info = env.step(action)
             rewards.append(reward)
-            log_step(step=step, action=f"{action.category}/{action.priority}/{action.action}", reward=reward, done=done, error=None)
+            log_step(
+                step=step,
+                action=f"{action.category}/{action.priority}/{action.action}",
+                reward=reward,
+                done=done,
+                error=None
+            )
 
         score = sum(rewards) / len(rewards) if rewards else 0.0
-        score = min(max(score, 0.0), 1.0)
+        score = safe_score(score)  # ✅ strict (0,1) range fix
         success = score >= 0.5
+
     finally:
         log_end(success=success, steps=step, score=score, rewards=rewards)
 
