@@ -1,6 +1,6 @@
-openai
-pydantic
 fastapi
+openenv-core>=0.2.3
+pillow
+pydantic
 uvicorn
-openenv-core
-python-dotenv
+

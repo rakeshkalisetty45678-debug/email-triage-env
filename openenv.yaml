@@ -1,15 +1,16 @@
-name: email-triage-env
-version: "1.0.0"
-description: "An RL environment for triaging emails into categories and priorities"
+name: executive-assistant-negotiation-env
+version: "2.0.0"
+description: "A multi-agent executive assistant environment for negotiation, delegation, and long-horizon planning."
 tags:
   - openenv
-  - real-world
-  - email
-  - triage
+  - multi-agent
+  - long-horizon
+  - personalized-tasks
+  - negotiation
+  - delegation
 tasks:
-  - name: spam_detection
-    difficulty: easy
-  - name: email_categorization
-    difficulty: medium
-  - name: inbox_triage
+  - name: board_crunch
     difficulty: hard
+  - name: launch_week
+    difficulty: hard
+

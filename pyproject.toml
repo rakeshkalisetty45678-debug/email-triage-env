@@ -1,15 +1,14 @@
 [project]
-name = "email-triage-env"
-version = "1.0.0"
-description = "An RL environment for triaging emails"
+name = "executive-assistant-negotiation-env"
+version = "2.0.0"
+description = "An OpenEnv environment for multi-agent executive assistant planning"
 requires-python = ">=3.11"
 dependencies = [
-    "openai",
     "pydantic",
     "fastapi",
     "uvicorn",
-    "openenv-core",
-    "python-dotenv",
+    "openenv-core>=0.2.3",
+    "pillow",
 ]
 
 [project.scripts]

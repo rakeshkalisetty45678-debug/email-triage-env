@@ -1,112 +1,85 @@
-import os
-import json
-from openai import OpenAI
-from env.environment import EmailTriageEnv
-from env.models import Action
-from typing import List, Optional
+from __future__ import annotations
 
-# Environment variables — defaults mandatory!
-API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
-MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
-HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+from env import AssistantAction, ExecutiveAssistantEnv
 
-if HF_TOKEN is None:
-    raise ValueError("HF_TOKEN environment variable is required")
 
-client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
+def heuristic_policy(observation) -> AssistantAction:
+    thread = observation.current_thread
+    text = f"{thread.subject} {thread.body}".lower()
 
-SYSTEM_PROMPT = """
-You are an email triage assistant.
-Given an email, you must respond with ONLY a JSON object like this:
-{
-    "category": "spam|work|personal|newsletter|urgent",
-    "priority": "high|medium|low",
-    "action": "delete|reply|read|forward|archive"
-}
-No explanation. No extra text. Just the JSON.
-"""
+    decision = "reply"
+    priority = "medium"
+    target_person = None
+    chosen_slot = None
+    rationale = "Acknowledge the thread and choose the lowest-risk next action."
+    message = "Thanks, I am handling this with the right balance of urgency and constraints."
 
-def log_start(task: str, env: str, model: str) -> None:
-    print(f"[START] task={task} env={env} model={model}", flush=True)
+    if "family" in text or thread.sender_role == "Family":
+        decision = "reply"
+        priority = "high"
+        rationale = "Protecting the family commitment prevents relationship damage later in the episode."
+        message = "Confirmed. Friday dinner remains protected and I will keep that time blocked."
+    elif "security" in text or "login" in text or "incident" in text:
+        decision = "delegate"
+        priority = "critical"
+        target_person = "Mira Shah"
+        rationale = "Security incidents should move immediately to the security lead with explicit approval."
+        message = "Mira, you are approved to lock sessions and begin incident response immediately."
+    elif "vendor" in text or "appendix" in text or "finance" in text:
+        decision = "delegate"
+        priority = "high"
+        target_person = "Nikhil Rao"
+        rationale = "This needs progress before the deadline but can be prepared by the chief of staff."
+        message = "Nikhil, please take point on the board appendix and bring back the vendor ranges for decision."
+    elif "pricing" in text or "procurement" in text or "pilot" in text:
+        decision = "delegate"
+        priority = "high"
+        target_person = "Aman Verma"
+        rationale = "Aman can keep the buyer warm without consuming executive meeting time."
+        message = "Aman, please coordinate pricing follow-up and keep the pilot timeline on track."
+    elif "blocker" in text or "arbitration" in text or "launch" in text:
+        decision = "schedule"
+        priority = "critical"
+        chosen_slot = "tue_1130"
+        rationale = "This is the highest-leverage live decision, so reserve the protected Tuesday slot."
+        message = "Let's meet Tuesday 11:30 to resolve the launch blockers decisively."
+    elif "friday 6:30" in text:
+        decision = "decline"
+        priority = "high"
+        rationale = "The request collides with a protected family commitment, so propose an alternative instead."
+        message = "We need to keep Friday evening protected, but I can send the board narrative now and propose Thursday."
+    elif "async" in text:
+        decision = "reply"
+        priority = "medium"
+        rationale = "The sender explicitly prefers async review, which preserves scarce meeting capacity."
+        message = "Async review works well here. Please send comments tonight and we will fold them in."
 
-def log_step(step: int, action: str, reward: float, done: bool, error: Optional[str]) -> None:
-    error_val = error if error else "null"
-    done_val = str(done).lower()
-    print(f"[STEP] step={step} action={action} reward={reward:.4f} done={done_val} error={error_val}", flush=True)
+    return AssistantAction(
+        thread_id=thread.thread_id,
+        decision=decision,
+        priority=priority,
+        target_person=target_person,
+        chosen_slot=chosen_slot,
+        rationale=rationale,
+        message=message,
+    )
 
-def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
-    rewards_str = ",".join(f"{r:.4f}" for r in rewards)
-    print(f"[END] success={str(success).lower()} steps={steps} score={score:.4f} rewards={rewards_str}", flush=True)
 
-def safe_score(raw: float) -> float:
-    """Score must be strictly between 0 and 1 per OpenEnv spec."""
-    return max(0.001, min(0.999, float(raw)))
+def run_demo(scenario_id: str = "board_crunch") -> float:
+    env = ExecutiveAssistantEnv()
+    observation = env.reset(seed=7, scenario_id=scenario_id)
+    rewards = []
 
-def get_action(obs) -> Action:
-    user_prompt = f"""
-Task: {obs.task_description}
-Email ID: {obs.email.id}
-Subject: {obs.email.subject}
-Sender: {obs.email.sender}
-Body: {obs.email.body}
-Classify this email.
-"""
-    try:
-        response = client.chat.completions.create(
-            model=MODEL_NAME,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.0,
-            max_tokens=100
-        )
-        text = response.choices[0].message.content.strip()
-        data = json.loads(text)
-        return Action(**data)
-    except Exception as e:
-        print(f"[DEBUG] Error: {e}", flush=True)
-        return Action(category="spam", priority="low", action="delete")
+    while not observation.done:
+        action = heuristic_policy(observation)
+        observation = env.step(action)
+        rewards.append(float(observation.reward or 0.0))
 
-def run_task(task_name: str):
-    env = EmailTriageEnv(task_name=task_name)
-    obs = env.reset()
-    rewards: List[float] = []
-    step = 0
-    done = False
-    score = 0.0
-    success = False
+    return sum(rewards) / len(rewards)
 
-    log_start(task=task_name, env="email-triage-env", model=MODEL_NAME)
-
-    try:
-        while not done:
-            step += 1
-            action = get_action(obs)
-            obs, reward, done, info = env.step(action)
-            reward = safe_score(reward)
-            rewards.append(reward)
-            log_step(
-                step=step,
-                action=f"{action.category}/{action.priority}/{action.action}",
-                reward=reward,
-                done=done,
-                error=None
-            )
-
-        score = sum(rewards) / len(rewards) if rewards else 0.5
-        score = safe_score(score)
-        success = score >= 0.5
-
-    except Exception as e:
-        print(f"[DEBUG] Task error: {e}", flush=True)
-        score = safe_score(0.5)
-        success = False
-
-    finally:
-        log_end(success=success, steps=step, score=score, rewards=rewards)
 
 if __name__ == "__main__":
-    for task in ["spam_detection", "email_categorization", "inbox_triage"]:
-        run_task(task)
-        print()
+    for scenario_id in ("board_crunch", "launch_week"):
+        score = run_demo(scenario_id)
+        print(f"{scenario_id}: mean_step_reward={score:.3f}")
+
