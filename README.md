@@ -1,12 +1,12 @@
 ---
 title: Executive Assistant Negotiation Env
-emoji: office
-colorFrom: amber
-colorTo: teal
+emoji: "📅"
+colorFrom: yellow
+colorTo: blue
 sdk: docker
 pinned: false
 license: mit
-short_description: OpenEnv environment for multi-agent executive assistant planning
+short_description: OpenEnv env for executive assistant planning
 ---
 
 # Executive Assistant Negotiation Env
