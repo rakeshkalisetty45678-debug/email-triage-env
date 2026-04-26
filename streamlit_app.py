@@ -161,11 +161,38 @@ def _render_fixed_table(title: str, rows: list[dict]) -> None:
     )
 
 
+def _render_text_list(title: str, items: list[str]) -> None:
+    st.markdown(f"**{title}**")
+    if not items:
+        st.write("No data available.")
+        return
+
+    item_html = "".join(f"<li>{html.escape(item)}</li>" for item in items)
+    st.markdown(
+        f"""
+        <div class="stable-list-wrap">
+          <ul class="stable-list">{item_html}</ul>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def main() -> None:
     _ensure_session()
     st.markdown(
         """
         <style>
+          html {
+            scrollbar-gutter: stable;
+          }
+          body {
+            overflow-x: hidden;
+          }
+          *, *::before, *::after {
+            animation: none !important;
+            transition: none !important;
+          }
           .block-container {
             padding-top: 1.4rem;
             padding-bottom: 2rem;
@@ -223,6 +250,8 @@ def main() -> None:
             background: rgba(255, 255, 255, 0.02);
             border-radius: 18px;
             padding: 1rem 1rem 0.9rem 1rem;
+            overflow: hidden;
+            contain: layout paint;
           }
           .metric-label {
             color: #a1a1aa;
@@ -246,9 +275,16 @@ def main() -> None:
           [data-testid="stVerticalBlockBorderWrapper"] {
             background: rgba(255, 255, 255, 0.02);
             border-radius: 18px;
+            contain: layout paint;
           }
           [data-testid="stVerticalBlockBorderWrapper"] > div {
             padding: 1.15rem 1.15rem 1rem 1.15rem;
+          }
+          [data-testid="column"] {
+            min-width: 0;
+          }
+          [data-testid="stHorizontalBlock"] > [data-testid="column"] > div {
+            min-width: 0;
           }
           .section-title {
             color: #f8fafc;
@@ -322,12 +358,16 @@ def main() -> None:
             border: 1px solid rgba(250, 250, 250, 0.12);
             border-radius: 12px;
             margin-bottom: 1rem;
+            contain: layout paint;
           }
           .stable-table {
             width: 100%;
             border-collapse: collapse;
             table-layout: auto;
             min-width: 100%;
+          }
+          .stable-table thead {
+            white-space: nowrap;
           }
           .stable-table th,
           .stable-table td {
@@ -342,8 +382,30 @@ def main() -> None:
             font-weight: 600;
             background: rgba(250, 250, 250, 0.03);
           }
+          .stable-list-wrap {
+            border: 1px solid rgba(250, 250, 250, 0.08);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.015);
+            padding: 0.65rem 0.85rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            contain: layout paint;
+          }
+          .stable-list {
+            margin: 0;
+            padding-left: 1.15rem;
+          }
+          .stable-list li {
+            color: #e4e4e7;
+            line-height: 1.55;
+            margin-bottom: 0.45rem;
+          }
+          .stable-list li:last-child {
+            margin-bottom: 0;
+          }
           .live-state-panel {
             min-height: 760px;
+            min-width: 0;
           }
           .artifact-grid-note {
             color: #a1a1aa;
@@ -583,16 +645,17 @@ def main() -> None:
                     for delegate in observation.delegates
                 ],
             )
-            st.markdown("**Stakeholder Hints**")
-            for hint in observation.stakeholder_hints:
-                st.write(f"- **{hint.name}** ({hint.role}): {hint.preference_hint}")
-
-            st.markdown("**Conflicts**")
-            if observation.outstanding_conflicts:
-                for item in observation.outstanding_conflicts:
-                    st.write(f"- {item}")
-            else:
-                st.write("No conflicts logged.")
+            _render_text_list(
+                "Stakeholder Hints",
+                [
+                    f"{hint.name} ({hint.role}): {hint.preference_hint}"
+                    for hint in observation.stakeholder_hints
+                ],
+            )
+            _render_text_list(
+                "Conflicts",
+                observation.outstanding_conflicts or ["No conflicts logged."],
+            )
         st.markdown("</div>", unsafe_allow_html=True)
 
     with _section("Episode History", "Decision trail across the current run."):

@@ -121,7 +121,7 @@ streamlit run streamlit_app.py --server.port 7860
 
 Then open:
 
-- Streamlit UI: `http://localhost:7860`
+- Streamlit UI: `https://email-triage-env-hvkrfcv3bzfuesrrnu7iwu.streamlit.app/`
 - The environment API code remains in the repo for OpenEnv compatibility
 
 ## Training pipeline
@@ -179,6 +179,8 @@ Colab notebook:
 ## Hugging Face Space
 
 Space URL: `https://huggingface.co/spaces/Rakesh45678/email-triage-env`
+
+Deployed Streamlit app: `https://email-triage-env-hvkrfcv3bzfuesrrnu7iwu.streamlit.app/`
 
 The Space now runs the Streamlit UI as the primary interface, with interactive scenario playthroughs, heuristic autoplay, and embedded evaluation artifacts.
 
