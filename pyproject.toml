@@ -20,4 +20,4 @@ requires = ["setuptools>=65"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["env", "server"]
+packages = ["env", "server", "executive_assistant_negotiation_env"]
