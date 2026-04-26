@@ -90,8 +90,8 @@ python scripts/benchmark.py
 
 Artifacts:
 
-- Reward plot: [reward_curve.png](/c:/Users/rakes/email-triage-env/reward_curve.png)
-- Metrics JSON: [baseline_metrics.json](/c:/Users/rakes/email-triage-env/outputs/evals/baseline_metrics.json)
+- Reward plot: [reward_curve.png](reward_curve.png)
+- Metrics JSON: [baseline_metrics.json](outputs/evals/baseline_metrics.json)
 
 ## OpenEnv compliance
 
@@ -105,12 +105,12 @@ This repo uses the current OpenEnv server pattern:
 
 Main files:
 
-- Environment: [environment.py](/c:/Users/rakes/email-triage-env/env/environment.py)
-- Models: [models.py](/c:/Users/rakes/email-triage-env/env/models.py)
-- Rubrics: [graders.py](/c:/Users/rakes/email-triage-env/env/graders.py)
-- Server app: [app.py](/c:/Users/rakes/email-triage-env/server/app.py)
-- Streamlit UI: [streamlit_app.py](/c:/Users/rakes/email-triage-env/streamlit_app.py)
-- Client: [client.py](/c:/Users/rakes/email-triage-env/client.py)
+- Environment: [environment.py](env/environment.py)
+- Models: [models.py](env/models.py)
+- Rubrics: [graders.py](env/graders.py)
+- Server app: [app.py](server/app.py)
+- Streamlit UI: [streamlit_app.py](streamlit_app.py)
+- Client: [client.py](client.py)
 
 ## Run locally
 
@@ -128,8 +128,8 @@ Then open:
 
 The repo now includes two TRL paths:
 
-- Minimal RL script for the OpenEnv requirement: [minimal_trl_train.py](/c:/Users/rakes/email-triage-env/scripts/minimal_trl_train.py)
-- Faster submission pipeline for before/after learning evidence: [train_sft_submission.py](/c:/Users/rakes/email-triage-env/scripts/train_sft_submission.py)
+- Minimal RL script for the OpenEnv requirement: [minimal_trl_train.py](scripts/minimal_trl_train.py)
+- Faster submission pipeline for before/after learning evidence: [train_sft_submission.py](scripts/train_sft_submission.py)
 
 The recommended submission path is:
 
@@ -162,19 +162,19 @@ python scripts/train_sft_submission.py
 
 Artifacts produced by the automated submission pipeline:
 
-- training loss plot: `outputs/sft_run/training_loss_curve.png`
-- reward comparison plot: `outputs/submission_eval/submission_reward_comparison.png`
-- metrics json: `outputs/submission_eval/submission_metrics.json`
-- behavior examples: `outputs/submission_eval/behavior_examples.json`
+- training loss plot: [training_loss_curve.png](outputs/sft_run/training_loss_curve.png)
+- reward comparison plot: [submission_reward_comparison.png](outputs/submission_eval/submission_reward_comparison.png)
+- metrics json: [submission_metrics.json](outputs/submission_eval/submission_metrics.json)
+- behavior examples: [behavior_examples.json](outputs/submission_eval/behavior_examples.json)
 
 Colab notebook:
 
-- [minimal_trl_colab.ipynb](/c:/Users/rakes/email-triage-env/notebooks/minimal_trl_colab.ipynb)
+- [minimal_trl_colab.ipynb](notebooks/minimal_trl_colab.ipynb)
 - Open in Colab: `https://colab.research.google.com/github/rakeshkalisetty45678-debug/email-triage-env/blob/main/notebooks/minimal_trl_colab.ipynb`
 
 ## Project write-up
 
-- Full project explainer: [blog.md](/c:/Users/rakes/email-triage-env/blog.md)
+- Full project explainer: [blog.md](blog.md)
 
 ## Hugging Face Space
 
