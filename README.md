@@ -169,6 +169,7 @@ Artifacts produced by the automated submission pipeline:
 Colab notebook:
 
 - [minimal_trl_colab.ipynb](/c:/Users/rakes/email-triage-env/notebooks/minimal_trl_colab.ipynb)
+- Open in Colab: `https://colab.research.google.com/github/rakeshkalisetty45678-debug/email-triage-env/blob/executive-assistant-openenv/notebooks/minimal_trl_colab.ipynb`
 
 ## Story assets
 
@@ -188,6 +189,7 @@ openenv push --repo-id YOUR_HF_USERNAME/executive-assistant-negotiation-env
 ## GitHub
 
 Repository URL: `https://github.com/rakeshkalisetty45678-debug/email-triage-env`
+Project branch: `https://github.com/rakeshkalisetty45678-debug/email-triage-env/tree/executive-assistant-openenv`
 
 ## Notes
 
