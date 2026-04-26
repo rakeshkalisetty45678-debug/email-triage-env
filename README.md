@@ -180,7 +180,9 @@ Colab notebook:
 
 ## Hugging Face Space
 
-Space URL: `https://huggingface.co/spaces/Rakesh45678/email-triage-env`
+Public app URL: `https://rakesh45678-email-triage-env.hf.space`
+
+Space repo URL: `https://huggingface.co/spaces/Rakesh45678/email-triage-env`
 
 The Space now runs the Streamlit UI as the primary interface, with interactive scenario playthroughs, heuristic autoplay, and embedded evaluation artifacts.
 
@@ -197,4 +199,4 @@ Project branch: `https://github.com/rakeshkalisetty45678-debug/email-triage-env/
 
 ## Notes
 
-This repo currently includes honest baseline evaluation and a working TRL training entrypoint. Full RL runs should be executed on Hackathon compute and then the resulting plots, checkpoints, and Space URL should be linked back into this README before final submission.
+This repo currently includes honest baseline evaluation and a working TRL training entrypoint. Full RL runs should be executed on Hackathon compute and then the resulting plots, checkpoints, and public app URL should be linked back into this README before final submission.
