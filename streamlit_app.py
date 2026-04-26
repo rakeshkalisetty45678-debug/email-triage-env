@@ -4,6 +4,7 @@ import html
 import json
 from pathlib import Path
 from typing import Optional
+from contextlib import contextmanager
 
 import streamlit as st
 
@@ -117,22 +118,19 @@ def _render_metric_card(label: str, value: str, detail: str = "") -> None:
     )
 
 
-def _section_open(title: str, subtitle: str = "") -> None:
-    subtitle_html = (
-        f'<div class="section-subtitle">{html.escape(subtitle)}</div>' if subtitle else ""
-    )
-    st.markdown(
-        f"""
-        <section class="panel-card">
-          <div class="section-title">{html.escape(title)}</div>
-          {subtitle_html}
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def _section_close() -> None:
-    st.markdown("</section>", unsafe_allow_html=True)
+@contextmanager
+def _section(title: str, subtitle: str = ""):
+    with st.container(border=True):
+        st.markdown(
+            f'<div class="section-title">{html.escape(title)}</div>',
+            unsafe_allow_html=True,
+        )
+        if subtitle:
+            st.markdown(
+                f'<div class="section-subtitle">{html.escape(subtitle)}</div>',
+                unsafe_allow_html=True,
+            )
+        yield
 
 
 def _render_fixed_table(title: str, rows: list[dict]) -> None:
@@ -178,6 +176,9 @@ def main() -> None:
           }
           [data-testid="stToolbar"] {
             right: 0.75rem;
+          }
+          [data-testid="stElementToolbar"] {
+            display: none;
           }
           [data-testid="stSidebar"] {
             background: linear-gradient(180deg, rgba(33, 33, 43, 0.98), rgba(24, 24, 32, 0.98));
@@ -242,12 +243,12 @@ def main() -> None:
             font-size: 0.92rem;
             line-height: 1.45;
           }
-          .panel-card {
-            border: 1px solid rgba(250, 250, 250, 0.08);
+          [data-testid="stVerticalBlockBorderWrapper"] {
             background: rgba(255, 255, 255, 0.02);
             border-radius: 18px;
+          }
+          [data-testid="stVerticalBlockBorderWrapper"] > div {
             padding: 1.15rem 1.15rem 1rem 1.15rem;
-            margin-bottom: 1rem;
           }
           .section-title {
             color: #f8fafc;
@@ -325,7 +326,8 @@ def main() -> None:
           .stable-table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
+            table-layout: auto;
+            min-width: 100%;
           }
           .stable-table th,
           .stable-table td {
@@ -333,7 +335,8 @@ def main() -> None:
             border-bottom: 1px solid rgba(250, 250, 250, 0.08);
             text-align: left;
             vertical-align: top;
-            word-break: break-word;
+            word-break: normal;
+            overflow-wrap: anywhere;
           }
           .stable-table th {
             font-weight: 600;
@@ -431,199 +434,195 @@ def main() -> None:
     left, right = st.columns([1.45, 0.95], gap="large")
 
     with left:
-        _section_open("Current Thread", scenario["objective"])
-        st.markdown(
-            f'<div class="thread-meta"><strong>From:</strong> {html.escape(observation.current_thread.sender)} '
-            f'({html.escape(observation.current_thread.sender_role)})</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f'<div class="thread-meta"><strong>Subject:</strong> {html.escape(observation.current_thread.subject)}</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f'<div class="thread-body">{html.escape(observation.current_thread.body)}</div>',
-            unsafe_allow_html=True,
-        )
-        _render_badge(
-            "Social Risk",
-            observation.current_thread.social_risk,
-            _risk_tone(observation.current_thread.social_risk),
-        )
-
-        thread_col1, thread_col2 = st.columns(2)
-        with thread_col1:
-            constraint_items = "".join(
-                f"<li>{html.escape(item)}</li>"
-                for item in observation.current_thread.visible_constraints
-            )
+        with _section("Current Thread", scenario["objective"]):
             st.markdown(
                 f"""
-                <div class="list-card">
-                  <h4>Visible Constraints</h4>
-                  <ul>{constraint_items}</ul>
-                </div>
+                <div class="thread-meta"><strong>From:</strong> {html.escape(observation.current_thread.sender)}
+                ({html.escape(observation.current_thread.sender_role)})</div>
                 """,
                 unsafe_allow_html=True,
             )
-        with thread_col2:
-            ask_items = "".join(
-                f"<li>{html.escape(item)}</li>"
-                for item in observation.current_thread.asks
-            )
             st.markdown(
-                f"""
-                <div class="list-card">
-                  <h4>Asks</h4>
-                  <ul>{ask_items}</ul>
-                </div>
-                """,
+                f'<div class="thread-meta"><strong>Subject:</strong> {html.escape(observation.current_thread.subject)}</div>',
                 unsafe_allow_html=True,
             )
-        _section_close()
+            st.markdown(
+                f'<div class="thread-body">{html.escape(observation.current_thread.body)}</div>',
+                unsafe_allow_html=True,
+            )
+            _render_badge(
+                "Social Risk",
+                observation.current_thread.social_risk,
+                _risk_tone(observation.current_thread.social_risk),
+            )
 
-        _section_open(
+            thread_col1, thread_col2 = st.columns(2)
+            with thread_col1:
+                constraint_items = "".join(
+                    f"<li>{html.escape(item)}</li>"
+                    for item in observation.current_thread.visible_constraints
+                )
+                st.markdown(
+                    f"""
+                    <div class="list-card">
+                      <h4>Visible Constraints</h4>
+                      <ul>{constraint_items}</ul>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+            with thread_col2:
+                ask_items = "".join(
+                    f"<li>{html.escape(item)}</li>"
+                    for item in observation.current_thread.asks
+                )
+                st.markdown(
+                    f"""
+                    <div class="list-card">
+                      <h4>Asks</h4>
+                      <ul>{ask_items}</ul>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+        with _section(
             "Action Composer",
             "Compose a response manually or let the heuristic take the next move.",
-        )
-        heuristic = heuristic_policy(observation)
+        ):
+            heuristic = heuristic_policy(observation)
 
-        with st.form("action_form", clear_on_submit=False):
-            decision = st.selectbox(
-                "Decision",
-                options=["reply", "delegate", "schedule", "decline", "clarify", "archive"],
-                index=["reply", "delegate", "schedule", "decline", "clarify", "archive"].index(
-                    heuristic.decision
-                ),
-            )
-            priority = st.selectbox(
-                "Priority",
-                options=["critical", "high", "medium", "low"],
-                index=["critical", "high", "medium", "low"].index(heuristic.priority),
-            )
+            with st.form("action_form", clear_on_submit=False):
+                decision = st.selectbox(
+                    "Decision",
+                    options=["reply", "delegate", "schedule", "decline", "clarify", "archive"],
+                    index=["reply", "delegate", "schedule", "decline", "clarify", "archive"].index(
+                        heuristic.decision
+                    ),
+                )
+                priority = st.selectbox(
+                    "Priority",
+                    options=["critical", "high", "medium", "low"],
+                    index=["critical", "high", "medium", "low"].index(heuristic.priority),
+                )
 
-            delegates = [delegate.name for delegate in observation.delegates if delegate.capacity_remaining > 0]
-            slots = [slot.slot_id for slot in observation.available_slots if slot.available]
+                delegates = [delegate.name for delegate in observation.delegates if delegate.capacity_remaining > 0]
+                slots = [slot.slot_id for slot in observation.available_slots if slot.available]
 
-            target_person = st.selectbox(
-                "Delegate Target",
-                options=[""] + delegates,
-                index=([""] + delegates).index(heuristic.target_person) if heuristic.target_person in delegates else 0,
-            )
-            chosen_slot = st.selectbox(
-                "Meeting Slot",
-                options=[""] + slots,
-                index=([""] + slots).index(heuristic.chosen_slot) if heuristic.chosen_slot in slots else 0,
-                format_func=lambda value: next(
-                    (slot.label for slot in observation.available_slots if slot.slot_id == value),
-                    "None",
-                ) if value else "None",
-            )
-            rationale = st.text_area("Rationale", value=heuristic.rationale, height=100)
-            message = st.text_area("Message", value=heuristic.message, height=120)
+                target_person = st.selectbox(
+                    "Delegate Target",
+                    options=[""] + delegates,
+                    index=([""] + delegates).index(heuristic.target_person) if heuristic.target_person in delegates else 0,
+                )
+                chosen_slot = st.selectbox(
+                    "Meeting Slot",
+                    options=[""] + slots,
+                    index=([""] + slots).index(heuristic.chosen_slot) if heuristic.chosen_slot in slots else 0,
+                    format_func=lambda value: next(
+                        (slot.label for slot in observation.available_slots if slot.slot_id == value),
+                        "None",
+                    ) if value else "None",
+                )
+                rationale = st.text_area("Rationale", value=heuristic.rationale, height=100)
+                message = st.text_area("Message", value=heuristic.message, height=120)
 
-            submit = st.form_submit_button("Apply Action", use_container_width=True)
+                submit = st.form_submit_button("Apply Action", use_container_width=True)
 
-        action_bar = st.columns(2)
-        with action_bar[0]:
-            if st.button("Use Heuristic For This Step", use_container_width=True):
-                _apply_action(heuristic)
+            action_bar = st.columns(2)
+            with action_bar[0]:
+                if st.button("Use Heuristic For This Step", use_container_width=True):
+                    _apply_action(heuristic)
+                    st.rerun()
+            with action_bar[1]:
+                if st.button("Run Heuristic To Finish", use_container_width=True):
+                    _play_heuristic_episode()
+                    st.rerun()
+
+            if submit:
+                action = AssistantAction(
+                    thread_id=observation.current_thread.thread_id,
+                    decision=decision,
+                    priority=priority,
+                    target_person=target_person or None,
+                    chosen_slot=chosen_slot or None,
+                    rationale=rationale,
+                    message=message,
+                )
+                _apply_action(action)
                 st.rerun()
-        with action_bar[1]:
-            if st.button("Run Heuristic To Finish", use_container_width=True):
-                _play_heuristic_episode()
-                st.rerun()
 
-        if submit:
-            action = AssistantAction(
-                thread_id=observation.current_thread.thread_id,
-                decision=decision,
-                priority=priority,
-                target_person=target_person or None,
-                chosen_slot=chosen_slot or None,
-                rationale=rationale,
-                message=message,
-            )
-            _apply_action(action)
-            st.rerun()
-
-        if observation.done:
-            st.success("Episode complete.")
-            st.json(state.model_dump())
-        else:
-            st.info(observation.last_outcome)
-        _section_close()
+            if observation.done:
+                st.success("Episode complete.")
+                st.json(state.model_dump())
+            else:
+                st.info(observation.last_outcome)
 
     with right:
         st.markdown('<div class="live-state-panel">', unsafe_allow_html=True)
-        _section_open("Live State", "Operational resources, teammate capacity, and conflict tracking.")
-        _render_fixed_table(
-            "Available Slots",
-            [
-                {
-                    "slot_id": slot.slot_id,
-                    "label": slot.label,
-                    "available": slot.available,
-                    "reserved_for": slot.reserved_for or "",
-                }
-                for slot in observation.available_slots
-            ],
-        )
-        _render_fixed_table(
-            "Delegates",
-            [
-                {
-                    "name": delegate.name,
-                    "role": delegate.role,
-                    "capacity_remaining": delegate.capacity_remaining,
-                    "specialties": ", ".join(delegate.specialties),
-                }
-                for delegate in observation.delegates
-            ],
-        )
-        st.markdown("**Stakeholder Hints**")
-        for hint in observation.stakeholder_hints:
-            st.write(f"- **{hint.name}** ({hint.role}): {hint.preference_hint}")
+        with _section("Live State", "Operational resources, teammate capacity, and conflict tracking."):
+            _render_fixed_table(
+                "Available Slots",
+                [
+                    {
+                        "slot_id": slot.slot_id,
+                        "label": slot.label,
+                        "available": slot.available,
+                        "reserved_for": slot.reserved_for or "",
+                    }
+                    for slot in observation.available_slots
+                ],
+            )
+            _render_fixed_table(
+                "Delegates",
+                [
+                    {
+                        "name": delegate.name,
+                        "role": delegate.role,
+                        "capacity_remaining": delegate.capacity_remaining,
+                        "specialties": ", ".join(delegate.specialties),
+                    }
+                    for delegate in observation.delegates
+                ],
+            )
+            st.markdown("**Stakeholder Hints**")
+            for hint in observation.stakeholder_hints:
+                st.write(f"- **{hint.name}** ({hint.role}): {hint.preference_hint}")
 
-        st.markdown("**Conflicts**")
-        if observation.outstanding_conflicts:
-            for item in observation.outstanding_conflicts:
-                st.write(f"- {item}")
-        else:
-            st.write("No conflicts logged.")
-        _section_close()
+            st.markdown("**Conflicts**")
+            if observation.outstanding_conflicts:
+                for item in observation.outstanding_conflicts:
+                    st.write(f"- {item}")
+            else:
+                st.write("No conflicts logged.")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    _section_open("Episode History", "Decision trail across the current run.")
-    if st.session_state.history:
-        st.dataframe(st.session_state.history, use_container_width=True, hide_index=True)
-    else:
-        st.write("No actions applied yet.")
-    _section_close()
+    with _section("Episode History", "Decision trail across the current run."):
+        if st.session_state.history:
+            st.dataframe(st.session_state.history, use_container_width=True, hide_index=True)
+        else:
+            st.write("No actions applied yet.")
 
-    _section_open("Artifacts", "Benchmark and training evidence committed with the repo.")
-    st.markdown('<div class="artifact-grid-note">These visuals are static repo artifacts, useful for demos and submission evidence.</div>', unsafe_allow_html=True)
-    art_left, art_right = st.columns(2)
-    with art_left:
-        _artifact_image("reward_curve.png", "Benchmark: random vs heuristic reward")
-        _artifact_image(
-            "outputs/sft_run/training_loss_curve.png",
-            "SFT training loss curve",
-        )
-    with art_right:
-        _artifact_image(
-            "outputs/submission_eval/submission_reward_comparison.png",
-            "Submission reward comparison",
-        )
-        metrics = _artifact_json("outputs/submission_eval/submission_metrics.json")
-        if metrics:
-            st.json(
-                {
-                    key: value["mean_reward"] if isinstance(value, dict) and "mean_reward" in value else value
-                    for key, value in metrics.items()
-                }
+    with _section("Artifacts", "Benchmark and training evidence committed with the repo."):
+        st.markdown('<div class="artifact-grid-note">These visuals are static repo artifacts, useful for demos and submission evidence.</div>', unsafe_allow_html=True)
+        art_left, art_right = st.columns(2)
+        with art_left:
+            _artifact_image("reward_curve.png", "Benchmark: random vs heuristic reward")
+            _artifact_image(
+                "outputs/sft_run/training_loss_curve.png",
+                "SFT training loss curve",
             )
-    _section_close()
+        with art_right:
+            _artifact_image(
+                "outputs/submission_eval/submission_reward_comparison.png",
+                "Submission reward comparison",
+            )
+            metrics = _artifact_json("outputs/submission_eval/submission_metrics.json")
+            if metrics:
+                st.json(
+                    {
+                        key: value["mean_reward"] if isinstance(value, dict) and "mean_reward" in value else value
+                        for key, value in metrics.items()
+                    }
+                )
 
 
 if __name__ == "__main__":

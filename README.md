@@ -172,10 +172,9 @@ Colab notebook:
 - [minimal_trl_colab.ipynb](/c:/Users/rakes/email-triage-env/notebooks/minimal_trl_colab.ipynb)
 - Open in Colab: `https://colab.research.google.com/github/rakeshkalisetty45678-debug/email-triage-env/blob/main/notebooks/minimal_trl_colab.ipynb`
 
-## Story assets
+## Project write-up
 
-- Mini blog draft: [hf_mini_blog.md](/c:/Users/rakes/email-triage-env/docs/hf_mini_blog.md)
-- Short video script: [video_script.md](/c:/Users/rakes/email-triage-env/docs/video_script.md)
+- Full project explainer: [blog.md](/c:/Users/rakes/email-triage-env/blog.md)
 
 ## Hugging Face Space
 
