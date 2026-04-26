@@ -123,14 +123,52 @@ Then open:
 - API docs: `http://localhost:7860/docs`
 - OpenEnv endpoints: `/reset`, `/step`, `/state`, `/metadata`, `/health`
 
-## Minimal training script
+## Training pipeline
 
-The repo includes a minimal Hugging Face TRL GRPO script that replays environment state during reward computation:
+The repo now includes two TRL paths:
 
-- Training script: [minimal_trl_train.py](/c:/Users/rakes/email-triage-env/scripts/minimal_trl_train.py)
-- Colab notebook: [minimal_trl_colab.ipynb](/c:/Users/rakes/email-triage-env/notebooks/minimal_trl_colab.ipynb)
+- Minimal RL script for the OpenEnv requirement: [minimal_trl_train.py](/c:/Users/rakes/email-triage-env/scripts/minimal_trl_train.py)
+- Faster submission pipeline for before/after learning evidence: [train_sft_submission.py](/c:/Users/rakes/email-triage-env/scripts/train_sft_submission.py)
 
-The notebook is intentionally lightweight so judges can rerun it with Hackathon compute. Replace the placeholder GitHub URL in the notebook before sharing it.
+The recommended submission path is:
+
+```bash
+pip install -r requirements.txt
+pip install -r requirements-train.txt
+python scripts/train_sft_submission.py
+python scripts/plot_training_state.py
+python scripts/evaluate_submission.py
+```
+
+For a much faster local CPU smoke run:
+
+```bash
+set FAST_LOCAL_TRAIN=1
+python scripts/train_sft_submission.py
+python scripts/plot_training_state.py
+python scripts/evaluate_submission.py
+```
+
+For a stronger final GPU run:
+
+```bash
+set FAST_LOCAL_TRAIN=0
+set SFT_MODEL_NAME=Qwen/Qwen2.5-0.5B-Instruct
+set SFT_REPEATS_PER_SCENARIO=8
+set SFT_MAX_STEPS=40
+python scripts/train_sft_submission.py
+```
+
+Artifacts produced by the automated submission pipeline:
+
+- training loss plot: `outputs/sft_run/training_loss_curve.png`
+- reward comparison plot: `outputs/submission_eval/submission_reward_comparison.png`
+- metrics json: `outputs/submission_eval/submission_metrics.json`
+- behavior examples: `outputs/submission_eval/behavior_examples.json`
+
+Colab notebook:
+
+- [minimal_trl_colab.ipynb](/c:/Users/rakes/email-triage-env/notebooks/minimal_trl_colab.ipynb)
 
 ## Story assets
 

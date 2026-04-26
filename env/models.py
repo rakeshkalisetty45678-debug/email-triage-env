@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import Dict, List, Literal, Optional
 
-from openenv.core import Action, Observation, State
 from pydantic import BaseModel, Field
+
+from env.openenv_compat import Action, Observation, State
 
 
 DecisionType = Literal["reply", "delegate", "schedule", "decline", "clarify", "archive"]
@@ -103,4 +104,3 @@ class ThreadOutcome(BaseModel):
     success: bool
     notes: List[str]
     conflicts_added: List[str] = Field(default_factory=list)
-

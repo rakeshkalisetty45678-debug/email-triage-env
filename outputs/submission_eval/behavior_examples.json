@@ -1,0 +1,290 @@
+{
+  "base_model_examples": [
+    {
+      "scenario_id": "board_crunch",
+      "seed": 101,
+      "mean_reward": 0.2895,
+      "actions": [
+        {
+          "metadata": {},
+          "thread_id": "t1",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "t2",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "t3",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "t4",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        }
+      ],
+      "final_state": {
+        "episode_id": "0066ba06-aac1-4cbb-aa03-48d0a44eb9cb",
+        "step_count": 4,
+        "scenario_id": "board_crunch",
+        "title": "Board Crunch With Family Constraint",
+        "objective": "Protect the CEO's board-prep time while resolving an investor request, a security escalation, and a family commitment with minimal relationship damage.",
+        "current_thread_id": null,
+        "booked_slots": {},
+        "delegate_loads": {
+          "Nikhil Rao": 2,
+          "Mira Shah": 1
+        },
+        "completed_threads": [
+          "t1",
+          "t2",
+          "t3",
+          "t4"
+        ],
+        "unresolved_threads": [],
+        "conflict_log": [
+          "Family commitment was not explicitly protected."
+        ],
+        "cumulative_reward": 1.1581,
+        "final_score": 0.2895
+      }
+    },
+    {
+      "scenario_id": "launch_week",
+      "seed": 102,
+      "mean_reward": 0.3275,
+      "actions": [
+        {
+          "metadata": {},
+          "thread_id": "l1",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "l2",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "l3",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "l4",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        }
+      ],
+      "final_state": {
+        "episode_id": "e069fdfa-00f8-4006-a59a-53c6f4ae0221",
+        "step_count": 4,
+        "scenario_id": "launch_week",
+        "title": "Launch Week Coalition Management",
+        "objective": "Coordinate product, legal, and sales leaders during launch week without double-booking the executive or burning partner trust.",
+        "current_thread_id": null,
+        "booked_slots": {},
+        "delegate_loads": {
+          "Ritu Kapoor": 1,
+          "Aman Verma": 2
+        },
+        "completed_threads": [
+          "l1",
+          "l2",
+          "l3",
+          "l4"
+        ],
+        "unresolved_threads": [],
+        "conflict_log": [],
+        "cumulative_reward": 1.31,
+        "final_score": 0.3275
+      }
+    }
+  ],
+  "trained_model_examples": [
+    {
+      "scenario_id": "board_crunch",
+      "seed": 101,
+      "mean_reward": 0.2895,
+      "actions": [
+        {
+          "metadata": {},
+          "thread_id": "t1",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "t2",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "t3",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "t4",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        }
+      ],
+      "final_state": {
+        "episode_id": "7d308fe3-be43-48e0-ae1b-cbf9468600fe",
+        "step_count": 4,
+        "scenario_id": "board_crunch",
+        "title": "Board Crunch With Family Constraint",
+        "objective": "Protect the CEO's board-prep time while resolving an investor request, a security escalation, and a family commitment with minimal relationship damage.",
+        "current_thread_id": null,
+        "booked_slots": {},
+        "delegate_loads": {
+          "Nikhil Rao": 2,
+          "Mira Shah": 1
+        },
+        "completed_threads": [
+          "t1",
+          "t2",
+          "t3",
+          "t4"
+        ],
+        "unresolved_threads": [],
+        "conflict_log": [
+          "Family commitment was not explicitly protected."
+        ],
+        "cumulative_reward": 1.1581,
+        "final_score": 0.2895
+      }
+    },
+    {
+      "scenario_id": "launch_week",
+      "seed": 102,
+      "mean_reward": 0.3275,
+      "actions": [
+        {
+          "metadata": {},
+          "thread_id": "l1",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "l2",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "l3",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        },
+        {
+          "metadata": {},
+          "thread_id": "l4",
+          "decision": "clarify",
+          "priority": "medium",
+          "target_person": null,
+          "chosen_slot": null,
+          "rationale": "Fallback because the model output was not valid JSON.",
+          "message": "I need one more detail before I commit executive time."
+        }
+      ],
+      "final_state": {
+        "episode_id": "491ec653-2cbc-4559-ab7b-c60876dfb51e",
+        "step_count": 4,
+        "scenario_id": "launch_week",
+        "title": "Launch Week Coalition Management",
+        "objective": "Coordinate product, legal, and sales leaders during launch week without double-booking the executive or burning partner trust.",
+        "current_thread_id": null,
+        "booked_slots": {},
+        "delegate_loads": {
+          "Ritu Kapoor": 1,
+          "Aman Verma": 2
+        },
+        "completed_threads": [
+          "l1",
+          "l2",
+          "l3",
+          "l4"
+        ],
+        "unresolved_threads": [],
+        "conflict_log": [],
+        "cumulative_reward": 1.31,
+        "final_score": 0.3275
+      }
+    }
+  ]
+}

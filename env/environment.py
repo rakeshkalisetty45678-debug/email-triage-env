@@ -5,9 +5,6 @@ import random
 import uuid
 from typing import Any, Dict, List, Optional
 
-from openenv.core import Environment
-from openenv.core.env_server.types import EnvironmentMetadata
-
 from env.graders import build_rubric, clamp_score
 from env.models import (
     AssistantAction,
@@ -19,6 +16,7 @@ from env.models import (
     ThreadContext,
     ThreadOutcome,
 )
+from env.openenv_compat import Environment, EnvironmentMetadata
 from env.tasks import SCENARIOS
 
 
