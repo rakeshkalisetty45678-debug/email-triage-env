@@ -11,7 +11,7 @@ short_description: OpenEnv env for executive assistant planning
 
 # Executive Assistant Negotiation Env
 
-`Executive Assistant Negotiation Env` is an OpenEnv-compliant environment for training LLMs on realistic assistant work: negotiating with multiple stakeholders, protecting scarce calendar slots, delegating to the right teammate, and preserving personal commitments under pressure.
+`Executive Assistant Negotiation Env` is an OpenEnv-compliant environment for training LLMs on realistic assistant work: negotiating with multiple stakeholders, protecting scarce calendar slots, delegating to the right teammate, and preserving personal commitments under pressure. The repo now also ships with a Streamlit UI for interactive playthroughs and demos.
 
 This submission intentionally targets three hackathon themes at once:
 
@@ -109,19 +109,20 @@ Main files:
 - Models: [models.py](/c:/Users/rakes/email-triage-env/env/models.py)
 - Rubrics: [graders.py](/c:/Users/rakes/email-triage-env/env/graders.py)
 - Server app: [app.py](/c:/Users/rakes/email-triage-env/server/app.py)
+- Streamlit UI: [streamlit_app.py](/c:/Users/rakes/email-triage-env/streamlit_app.py)
 - Client: [client.py](/c:/Users/rakes/email-triage-env/client.py)
 
 ## Run locally
 
 ```bash
 pip install -r requirements.txt
-uvicorn app:app --host 0.0.0.0 --port 7860
+streamlit run streamlit_app.py --server.port 7860
 ```
 
 Then open:
 
-- API docs: `http://localhost:7860/docs`
-- OpenEnv endpoints: `/reset`, `/step`, `/state`, `/metadata`, `/health`
+- Streamlit UI: `http://localhost:7860`
+- The environment API code remains in the repo for OpenEnv compatibility
 
 ## Training pipeline
 
@@ -179,6 +180,8 @@ Colab notebook:
 ## Hugging Face Space
 
 Space URL: `https://huggingface.co/spaces/Rakesh45678/email-triage-env`
+
+The Space now runs the Streamlit UI as the primary interface, with interactive scenario playthroughs, heuristic autoplay, and embedded evaluation artifacts.
 
 OpenEnv can deploy this repo directly:
 

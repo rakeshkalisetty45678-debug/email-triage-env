@@ -2,5 +2,5 @@ fastapi
 openenv-core>=0.2.3
 pillow
 pydantic
+streamlit
 uvicorn
-
