@@ -102,16 +102,32 @@ def _render_badge(label: str, value: str, tone: str = "#f59e0b") -> None:
     )
 
 
-def _render_metric_card(label: str, value: str, detail: str = "") -> None:
+def _metric_card_html(
+    label: str,
+    value: str,
+    detail: str = "",
+    value_class: str = "",
+) -> str:
     detail_html = (
         f'<div class="metric-detail">{html.escape(detail)}</div>' if detail else ""
     )
-    st.markdown(
-        f"""
+    metric_value_class = "metric-value"
+    if value_class:
+        metric_value_class = f"{metric_value_class} {value_class}"
+    return f"""
         <div class="metric-card">
           <div class="metric-label">{html.escape(label)}</div>
-          <div class="metric-value">{html.escape(value)}</div>
+          <div class="{metric_value_class}">{html.escape(value)}</div>
           {detail_html}
+        </div>
+    """
+
+
+def _render_metric_grid(cards: list[str]) -> None:
+    st.markdown(
+        f"""
+        <div class="metrics-grid">
+          {''.join(cards)}
         </div>
         """,
         unsafe_allow_html=True,
@@ -184,14 +200,22 @@ def main() -> None:
         """
         <style>
           html {
-            scrollbar-gutter: stable;
+            scrollbar-gutter: stable both-edges;
           }
           body {
             overflow-x: hidden;
+            overflow-y: scroll;
+            text-rendering: geometricPrecision;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
           }
           *, *::before, *::after {
             animation: none !important;
             transition: none !important;
+          }
+          [data-testid="stAppViewContainer"],
+          [data-testid="stApp"] {
+            overflow-x: hidden;
           }
           .block-container {
             padding-top: 1.4rem;
@@ -232,9 +256,9 @@ def main() -> None:
             margin-bottom: 0.6rem;
           }
           .hero-title {
-            font-size: 3.2rem;
-            line-height: 1.02;
-            font-weight: 700;
+            font-size: 2.8rem;
+            line-height: 1.08;
+            font-weight: 650;
             color: #f8fafc;
             margin: 0 0 0.85rem 0;
           }
@@ -251,7 +275,12 @@ def main() -> None:
             border-radius: 18px;
             padding: 1rem 1rem 0.9rem 1rem;
             overflow: hidden;
-            contain: layout paint;
+          }
+          .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
           }
           .metric-label {
             color: #a1a1aa;
@@ -262,9 +291,19 @@ def main() -> None:
           }
           .metric-value {
             color: #f8fafc;
-            font-size: 2.5rem;
-            line-height: 1;
-            font-weight: 700;
+            font-size: 2.1rem;
+            line-height: 1.08;
+            font-weight: 650;
+            overflow-wrap: break-word;
+            word-break: break-word;
+          }
+          .metric-value--title {
+            font-size: 1.05rem;
+            line-height: 1.22;
+            font-weight: 600;
+          }
+          .metric-value--score {
+            white-space: nowrap;
           }
           .metric-detail {
             color: #cbd5e1;
@@ -275,7 +314,6 @@ def main() -> None:
           [data-testid="stVerticalBlockBorderWrapper"] {
             background: rgba(255, 255, 255, 0.02);
             border-radius: 18px;
-            contain: layout paint;
           }
           [data-testid="stVerticalBlockBorderWrapper"] > div {
             padding: 1.15rem 1.15rem 1rem 1.15rem;
@@ -358,13 +396,12 @@ def main() -> None:
             border: 1px solid rgba(250, 250, 250, 0.12);
             border-radius: 12px;
             margin-bottom: 1rem;
-            contain: layout paint;
           }
           .stable-table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: auto;
-            min-width: 100%;
+            table-layout: fixed;
+            min-width: 620px;
           }
           .stable-table thead {
             white-space: nowrap;
@@ -375,8 +412,9 @@ def main() -> None:
             border-bottom: 1px solid rgba(250, 250, 250, 0.08);
             text-align: left;
             vertical-align: top;
-            word-break: normal;
-            overflow-wrap: anywhere;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: none;
           }
           .stable-table th {
             font-weight: 600;
@@ -389,7 +427,6 @@ def main() -> None:
             padding: 0.65rem 0.85rem;
             margin-bottom: 1rem;
             overflow: hidden;
-            contain: layout paint;
           }
           .stable-list {
             margin: 0;
@@ -403,10 +440,6 @@ def main() -> None:
           .stable-list li:last-child {
             margin-bottom: 0;
           }
-          .live-state-panel {
-            min-height: 760px;
-            min-width: 0;
-          }
           .artifact-grid-note {
             color: #a1a1aa;
             margin-top: -0.45rem;
@@ -419,6 +452,25 @@ def main() -> None:
           }
           .stNumberInput, .stSelectbox, .stTextArea {
             margin-bottom: 0.1rem;
+          }
+          @media (max-width: 1100px) {
+            .hero-title {
+              font-size: 2.35rem;
+            }
+            .metrics-grid {
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+          }
+          @media (max-width: 700px) {
+            .hero-title {
+              font-size: 2rem;
+            }
+            .metrics-grid {
+              grid-template-columns: 1fr;
+            }
+            .metric-value {
+              font-size: 1.8rem;
+            }
           }
         </style>
         """,
@@ -470,28 +522,34 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
-    metrics = st.columns(4)
-    with metrics[0]:
-        _render_metric_card("Scenario", scenario["title"], observation.scenario_id)
-    with metrics[1]:
-        _render_metric_card(
+    _render_metric_grid(
+        [
+            _metric_card_html(
+                "Scenario",
+                scenario["title"],
+                observation.scenario_id,
+                "metric-value--title",
+            ),
+            _metric_card_html(
             "Progress",
             f"{observation.step_index}/{observation.total_steps}",
             "Current step across the episode trajectory.",
-        )
-    with metrics[2]:
-        _render_metric_card(
+            "metric-value--score",
+            ),
+            _metric_card_html(
             "Reward",
             f"{state.cumulative_reward:.4f}",
             "Cumulative score from the rubric so far.",
-        )
-    with metrics[3]:
-        final_text = f"{state.final_score:.4f}" if state.final_score is not None else "Pending"
-        _render_metric_card(
-            "Final Score",
-            final_text,
-            "Locked when the episode reaches the last thread.",
-        )
+            "metric-value--score",
+            ),
+            _metric_card_html(
+                "Final Score",
+                f"{state.final_score:.4f}" if state.final_score is not None else "Pending",
+                "Locked when the episode reaches the last thread.",
+                "metric-value--score",
+            ),
+        ]
+    )
 
     left, right = st.columns([1.45, 0.95], gap="large")
 
@@ -619,7 +677,6 @@ def main() -> None:
                 st.info(observation.last_outcome)
 
     with right:
-        st.markdown('<div class="live-state-panel">', unsafe_allow_html=True)
         with _section("Live State", "Operational resources, teammate capacity, and conflict tracking."):
             _render_fixed_table(
                 "Available Slots",
@@ -656,7 +713,6 @@ def main() -> None:
                 "Conflicts",
                 observation.outstanding_conflicts or ["No conflicts logged."],
             )
-        st.markdown("</div>", unsafe_allow_html=True)
 
     with _section("Episode History", "Decision trail across the current run."):
         if st.session_state.history:

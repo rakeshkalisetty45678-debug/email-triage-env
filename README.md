@@ -3,7 +3,9 @@ title: Executive Assistant Negotiation Env
 emoji: "📅"
 colorFrom: yellow
 colorTo: blue
-sdk: docker
+sdk: streamlit
+sdk_version: 1.56.0
+app_file: streamlit_app.py
 pinned: false
 license: mit
 short_description: OpenEnv env for executive assistant planning
@@ -121,7 +123,7 @@ streamlit run streamlit_app.py --server.port 7860
 
 Then open:
 
-- Streamlit UI: `https://email-triage-env-hvkrfcv3bzfuesrrnu7iwu.streamlit.app/`
+- Streamlit UI: `http://localhost:7860`
 - The environment API code remains in the repo for OpenEnv compatibility
 
 ## Training pipeline
@@ -179,8 +181,6 @@ Colab notebook:
 ## Hugging Face Space
 
 Space URL: `https://huggingface.co/spaces/Rakesh45678/email-triage-env`
-
-Deployed Streamlit app: `https://email-triage-env-hvkrfcv3bzfuesrrnu7iwu.streamlit.app/`
 
 The Space now runs the Streamlit UI as the primary interface, with interactive scenario playthroughs, heuristic autoplay, and embedded evaluation artifacts.
 
