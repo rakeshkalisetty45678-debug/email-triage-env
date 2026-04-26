@@ -78,6 +78,63 @@ def _artifact_json(path: str) -> Optional[dict]:
     return None
 
 
+def _risk_tone(risk: str) -> str:
+    return {
+        "critical": "#ef4444",
+        "high": "#f59e0b",
+        "medium": "#38bdf8",
+        "low": "#34d399",
+    }.get(risk.lower(), "#a1a1aa")
+
+
+def _render_badge(label: str, value: str, tone: str = "#f59e0b") -> None:
+    st.markdown(
+        f"""
+        <div class="badge-row">
+          <span class="badge-label">{html.escape(label)}</span>
+          <span class="badge-value" style="border-color:{tone}; color:{tone};">
+            {html.escape(value)}
+          </span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_metric_card(label: str, value: str, detail: str = "") -> None:
+    detail_html = (
+        f'<div class="metric-detail">{html.escape(detail)}</div>' if detail else ""
+    )
+    st.markdown(
+        f"""
+        <div class="metric-card">
+          <div class="metric-label">{html.escape(label)}</div>
+          <div class="metric-value">{html.escape(value)}</div>
+          {detail_html}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _section_open(title: str, subtitle: str = "") -> None:
+    subtitle_html = (
+        f'<div class="section-subtitle">{html.escape(subtitle)}</div>' if subtitle else ""
+    )
+    st.markdown(
+        f"""
+        <section class="panel-card">
+          <div class="section-title">{html.escape(title)}</div>
+          {subtitle_html}
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _section_close() -> None:
+    st.markdown("</section>", unsafe_allow_html=True)
+
+
 def _render_fixed_table(title: str, rows: list[dict]) -> None:
     st.markdown(f"**{title}**")
     if not rows:
@@ -111,6 +168,153 @@ def main() -> None:
     st.markdown(
         """
         <style>
+          .block-container {
+            padding-top: 1.4rem;
+            padding-bottom: 2rem;
+            max-width: 1400px;
+          }
+          [data-testid="stHeader"] {
+            background: transparent;
+          }
+          [data-testid="stToolbar"] {
+            right: 0.75rem;
+          }
+          [data-testid="stSidebar"] {
+            background: linear-gradient(180deg, rgba(33, 33, 43, 0.98), rgba(24, 24, 32, 0.98));
+            border-right: 1px solid rgba(250, 250, 250, 0.06);
+          }
+          [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+            gap: 0.7rem;
+          }
+          .hero-shell {
+            border: 1px solid rgba(250, 250, 250, 0.08);
+            background:
+              radial-gradient(circle at top right, rgba(245, 158, 11, 0.18), transparent 26%),
+              radial-gradient(circle at left center, rgba(56, 189, 248, 0.14), transparent 22%),
+              linear-gradient(180deg, rgba(18, 18, 24, 0.96), rgba(13, 13, 19, 0.98));
+            border-radius: 20px;
+            padding: 1.6rem 1.6rem 1.4rem 1.6rem;
+            margin-bottom: 1rem;
+          }
+          .eyebrow {
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #f59e0b;
+            font-size: 0.78rem;
+            margin-bottom: 0.6rem;
+          }
+          .hero-title {
+            font-size: 3.2rem;
+            line-height: 1.02;
+            font-weight: 700;
+            color: #f8fafc;
+            margin: 0 0 0.85rem 0;
+          }
+          .hero-copy {
+            max-width: 70ch;
+            color: #cbd5e1;
+            font-size: 1rem;
+            line-height: 1.7;
+          }
+          .metric-card {
+            min-height: 132px;
+            border: 1px solid rgba(250, 250, 250, 0.08);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 18px;
+            padding: 1rem 1rem 0.9rem 1rem;
+          }
+          .metric-label {
+            color: #a1a1aa;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.8rem;
+          }
+          .metric-value {
+            color: #f8fafc;
+            font-size: 2.5rem;
+            line-height: 1;
+            font-weight: 700;
+          }
+          .metric-detail {
+            color: #cbd5e1;
+            margin-top: 0.85rem;
+            font-size: 0.92rem;
+            line-height: 1.45;
+          }
+          .panel-card {
+            border: 1px solid rgba(250, 250, 250, 0.08);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 18px;
+            padding: 1.15rem 1.15rem 1rem 1.15rem;
+            margin-bottom: 1rem;
+          }
+          .section-title {
+            color: #f8fafc;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+          }
+          .section-subtitle {
+            color: #a1a1aa;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+          }
+          .thread-meta {
+            color: #e4e4e7;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+          }
+          .thread-body {
+            color: #f1f5f9;
+            font-size: 1.05rem;
+            line-height: 1.75;
+            margin: 0.85rem 0 0.4rem 0;
+          }
+          .list-card {
+            min-height: 190px;
+            border: 1px solid rgba(250, 250, 250, 0.06);
+            background: rgba(255, 255, 255, 0.018);
+            border-radius: 16px;
+            padding: 0.95rem 1rem 0.85rem 1rem;
+          }
+          .list-card h4 {
+            margin: 0 0 0.75rem 0;
+            font-size: 1rem;
+            color: #f8fafc;
+          }
+          .list-card ul {
+            margin: 0;
+            padding-left: 1.2rem;
+          }
+          .list-card li {
+            margin-bottom: 0.5rem;
+            color: #e4e4e7;
+            line-height: 1.55;
+          }
+          .badge-row {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-top: 0.9rem;
+            margin-bottom: 0.2rem;
+          }
+          .badge-label {
+            color: #a1a1aa;
+            font-size: 0.92rem;
+          }
+          .badge-value {
+            display: inline-flex;
+            align-items: center;
+            min-height: 32px;
+            padding: 0.15rem 0.65rem;
+            border: 1px solid;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.02);
+            font-size: 0.88rem;
+            font-weight: 600;
+          }
           .stable-table-wrap {
             width: 100%;
             overflow-x: auto;
@@ -136,20 +340,28 @@ def main() -> None:
             background: rgba(250, 250, 250, 0.03);
           }
           .live-state-panel {
-            min-height: 720px;
+            min-height: 760px;
+          }
+          .artifact-grid-note {
+            color: #a1a1aa;
+            margin-top: -0.45rem;
+            margin-bottom: 1rem;
+          }
+          .stButton > button {
+            min-height: 48px;
+            border-radius: 14px;
+            border: 1px solid rgba(250, 250, 250, 0.08);
+          }
+          .stNumberInput, .stSelectbox, .stTextArea {
+            margin-bottom: 0.1rem;
           }
         </style>
         """,
         unsafe_allow_html=True,
     )
 
-    st.title("Executive Assistant Negotiation Env")
-    st.caption(
-        "Interactive Streamlit UI for the OpenEnv executive assistant environment."
-    )
-
     with st.sidebar:
-        st.subheader("Episode Setup")
+        st.markdown("## Episode Setup")
         st.selectbox(
             "Scenario",
             options=list(SCENARIOS.keys()),
@@ -179,36 +391,101 @@ def main() -> None:
     scenario = SCENARIOS[observation.scenario_id]
     state = st.session_state.env.state
 
-    overview_col, score_col = st.columns([3, 1])
-    with overview_col:
-        st.subheader(scenario["title"])
-        st.write(scenario["objective"])
-    with score_col:
-        st.metric("Step", f"{observation.step_index}/{observation.total_steps}")
-        st.metric("Cumulative Reward", f"{state.cumulative_reward:.4f}")
-        if state.final_score is not None:
-            st.metric("Final Score", f"{state.final_score:.4f}")
+    st.markdown(
+        """
+        <div class="hero-shell">
+          <div class="eyebrow">Interactive Operations Console</div>
+          <div class="hero-title">Executive Assistant Negotiation Env</div>
+          <div class="hero-copy">
+            A high-pressure assistant workflow simulator where every reply, delegation,
+            and calendar decision trades off urgency, relationships, and long-horizon outcomes.
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    left, right = st.columns([1.6, 1])
+    metrics = st.columns(4)
+    with metrics[0]:
+        _render_metric_card("Scenario", scenario["title"], observation.scenario_id)
+    with metrics[1]:
+        _render_metric_card(
+            "Progress",
+            f"{observation.step_index}/{observation.total_steps}",
+            "Current step across the episode trajectory.",
+        )
+    with metrics[2]:
+        _render_metric_card(
+            "Reward",
+            f"{state.cumulative_reward:.4f}",
+            "Cumulative score from the rubric so far.",
+        )
+    with metrics[3]:
+        final_text = f"{state.final_score:.4f}" if state.final_score is not None else "Pending"
+        _render_metric_card(
+            "Final Score",
+            final_text,
+            "Locked when the episode reaches the last thread.",
+        )
+
+    left, right = st.columns([1.45, 0.95], gap="large")
 
     with left:
-        st.subheader("Current Thread")
-        st.markdown(f"**From:** {observation.current_thread.sender} ({observation.current_thread.sender_role})")
-        st.markdown(f"**Subject:** {observation.current_thread.subject}")
-        st.write(observation.current_thread.body)
+        _section_open("Current Thread", scenario["objective"])
+        st.markdown(
+            f'<div class="thread-meta"><strong>From:</strong> {html.escape(observation.current_thread.sender)} '
+            f'({html.escape(observation.current_thread.sender_role)})</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f'<div class="thread-meta"><strong>Subject:</strong> {html.escape(observation.current_thread.subject)}</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f'<div class="thread-body">{html.escape(observation.current_thread.body)}</div>',
+            unsafe_allow_html=True,
+        )
+        _render_badge(
+            "Social Risk",
+            observation.current_thread.social_risk,
+            _risk_tone(observation.current_thread.social_risk),
+        )
 
         thread_col1, thread_col2 = st.columns(2)
         with thread_col1:
-            st.markdown("**Visible Constraints**")
-            for item in observation.current_thread.visible_constraints:
-                st.write(f"- {item}")
+            constraint_items = "".join(
+                f"<li>{html.escape(item)}</li>"
+                for item in observation.current_thread.visible_constraints
+            )
+            st.markdown(
+                f"""
+                <div class="list-card">
+                  <h4>Visible Constraints</h4>
+                  <ul>{constraint_items}</ul>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
         with thread_col2:
-            st.markdown("**Asks**")
-            for item in observation.current_thread.asks:
-                st.write(f"- {item}")
-            st.markdown(f"**Social Risk:** `{observation.current_thread.social_risk}`")
+            ask_items = "".join(
+                f"<li>{html.escape(item)}</li>"
+                for item in observation.current_thread.asks
+            )
+            st.markdown(
+                f"""
+                <div class="list-card">
+                  <h4>Asks</h4>
+                  <ul>{ask_items}</ul>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        _section_close()
 
-        st.subheader("Action Composer")
+        _section_open(
+            "Action Composer",
+            "Compose a response manually or let the heuristic take the next move.",
+        )
         heuristic = heuristic_policy(observation)
 
         with st.form("action_form", clear_on_submit=False):
@@ -275,10 +552,11 @@ def main() -> None:
             st.json(state.model_dump())
         else:
             st.info(observation.last_outcome)
+        _section_close()
 
     with right:
         st.markdown('<div class="live-state-panel">', unsafe_allow_html=True)
-        st.subheader("Live State")
+        _section_open("Live State", "Operational resources, teammate capacity, and conflict tracking.")
         _render_fixed_table(
             "Available Slots",
             [
@@ -313,15 +591,18 @@ def main() -> None:
                 st.write(f"- {item}")
         else:
             st.write("No conflicts logged.")
+        _section_close()
         st.markdown("</div>", unsafe_allow_html=True)
 
-    st.subheader("Episode History")
+    _section_open("Episode History", "Decision trail across the current run.")
     if st.session_state.history:
         st.dataframe(st.session_state.history, use_container_width=True, hide_index=True)
     else:
         st.write("No actions applied yet.")
+    _section_close()
 
-    st.subheader("Artifacts")
+    _section_open("Artifacts", "Benchmark and training evidence committed with the repo.")
+    st.markdown('<div class="artifact-grid-note">These visuals are static repo artifacts, useful for demos and submission evidence.</div>', unsafe_allow_html=True)
     art_left, art_right = st.columns(2)
     with art_left:
         _artifact_image("reward_curve.png", "Benchmark: random vs heuristic reward")
@@ -342,6 +623,7 @@ def main() -> None:
                     for key, value in metrics.items()
                 }
             )
+    _section_close()
 
 
 if __name__ == "__main__":
