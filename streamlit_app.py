@@ -205,9 +205,10 @@ def main() -> None:
           body {
             overflow-x: hidden;
             overflow-y: scroll;
-            text-rendering: geometricPrecision;
+            text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            font-family: "Segoe UI", Arial, sans-serif;
           }
           *, *::before, *::after {
             animation: none !important;
@@ -240,33 +241,30 @@ def main() -> None:
           }
           .hero-shell {
             border: 1px solid rgba(250, 250, 250, 0.08);
-            background:
-              radial-gradient(circle at top right, rgba(245, 158, 11, 0.18), transparent 26%),
-              radial-gradient(circle at left center, rgba(56, 189, 248, 0.14), transparent 22%),
-              linear-gradient(180deg, rgba(18, 18, 24, 0.96), rgba(13, 13, 19, 0.98));
-            border-radius: 20px;
-            padding: 1.6rem 1.6rem 1.4rem 1.6rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 1.35rem 1.35rem 1.2rem 1.35rem;
             margin-bottom: 1rem;
           }
           .eyebrow {
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.04em;
             color: #f59e0b;
-            font-size: 0.78rem;
-            margin-bottom: 0.6rem;
+            font-size: 0.74rem;
+            margin-bottom: 0.45rem;
           }
           .hero-title {
-            font-size: 2.8rem;
-            line-height: 1.08;
-            font-weight: 650;
+            font-size: 2.2rem;
+            line-height: 1.12;
+            font-weight: 600;
             color: #f8fafc;
-            margin: 0 0 0.85rem 0;
+            margin: 0 0 0.65rem 0;
           }
           .hero-copy {
-            max-width: 70ch;
+            max-width: 64ch;
             color: #cbd5e1;
-            font-size: 1rem;
-            line-height: 1.7;
+            font-size: 0.98rem;
+            line-height: 1.55;
           }
           .metric-card {
             min-height: 132px;
@@ -284,22 +282,22 @@ def main() -> None:
           }
           .metric-label {
             color: #a1a1aa;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-bottom: 0.8rem;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.65rem;
           }
           .metric-value {
             color: #f8fafc;
-            font-size: 2.1rem;
-            line-height: 1.08;
-            font-weight: 650;
+            font-size: 1.75rem;
+            line-height: 1.12;
+            font-weight: 600;
             overflow-wrap: break-word;
             word-break: break-word;
           }
           .metric-value--title {
-            font-size: 1.05rem;
-            line-height: 1.22;
+            font-size: 0.98rem;
+            line-height: 1.28;
             font-weight: 600;
           }
           .metric-value--score {
@@ -326,8 +324,8 @@ def main() -> None:
           }
           .section-title {
             color: #f8fafc;
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.35rem;
+            font-weight: 650;
             margin-bottom: 0.35rem;
           }
           .section-subtitle {
@@ -455,7 +453,7 @@ def main() -> None:
           }
           @media (max-width: 1100px) {
             .hero-title {
-              font-size: 2.35rem;
+              font-size: 1.95rem;
             }
             .metrics-grid {
               grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -463,13 +461,13 @@ def main() -> None:
           }
           @media (max-width: 700px) {
             .hero-title {
-              font-size: 2rem;
+              font-size: 1.7rem;
             }
             .metrics-grid {
               grid-template-columns: 1fr;
             }
             .metric-value {
-              font-size: 1.8rem;
+              font-size: 1.5rem;
             }
           }
         </style>
