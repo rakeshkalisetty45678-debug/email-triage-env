@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import json
 from pathlib import Path
 from typing import Optional
@@ -77,8 +78,70 @@ def _artifact_json(path: str) -> Optional[dict]:
     return None
 
 
+def _render_fixed_table(title: str, rows: list[dict]) -> None:
+    st.markdown(f"**{title}**")
+    if not rows:
+        st.write("No data available.")
+        return
+
+    columns = list(rows[0].keys())
+    header_html = "".join(f"<th>{html.escape(str(column))}</th>" for column in columns)
+    row_html = []
+    for row in rows:
+        cells = "".join(
+            f"<td>{html.escape(str(row.get(column, '')))}</td>" for column in columns
+        )
+        row_html.append(f"<tr>{cells}</tr>")
+
+    st.markdown(
+        f"""
+        <div class="stable-table-wrap">
+          <table class="stable-table">
+            <thead><tr>{header_html}</tr></thead>
+            <tbody>{''.join(row_html)}</tbody>
+          </table>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def main() -> None:
     _ensure_session()
+    st.markdown(
+        """
+        <style>
+          .stable-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid rgba(250, 250, 250, 0.12);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+          }
+          .stable-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+          }
+          .stable-table th,
+          .stable-table td {
+            padding: 0.75rem 0.8rem;
+            border-bottom: 1px solid rgba(250, 250, 250, 0.08);
+            text-align: left;
+            vertical-align: top;
+            word-break: break-word;
+          }
+          .stable-table th {
+            font-weight: 600;
+            background: rgba(250, 250, 250, 0.03);
+          }
+          .live-state-panel {
+            min-height: 720px;
+          }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
     st.title("Executive Assistant Negotiation Env")
     st.caption(
@@ -214,9 +277,10 @@ def main() -> None:
             st.info(observation.last_outcome)
 
     with right:
+        st.markdown('<div class="live-state-panel">', unsafe_allow_html=True)
         st.subheader("Live State")
-        st.markdown("**Available Slots**")
-        st.dataframe(
+        _render_fixed_table(
+            "Available Slots",
             [
                 {
                     "slot_id": slot.slot_id,
@@ -226,11 +290,9 @@ def main() -> None:
                 }
                 for slot in observation.available_slots
             ],
-            use_container_width=True,
-            hide_index=True,
         )
-        st.markdown("**Delegates**")
-        st.dataframe(
+        _render_fixed_table(
+            "Delegates",
             [
                 {
                     "name": delegate.name,
@@ -240,8 +302,6 @@ def main() -> None:
                 }
                 for delegate in observation.delegates
             ],
-            use_container_width=True,
-            hide_index=True,
         )
         st.markdown("**Stakeholder Hints**")
         for hint in observation.stakeholder_hints:
@@ -253,6 +313,7 @@ def main() -> None:
                 st.write(f"- {item}")
         else:
             st.write("No conflicts logged.")
+        st.markdown("</div>", unsafe_allow_html=True)
 
     st.subheader("Episode History")
     if st.session_state.history:
