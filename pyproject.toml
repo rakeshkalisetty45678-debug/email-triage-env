@@ -16,8 +16,8 @@ dependencies = [
 server = "server.app:main"
 
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.backends.legacy:build"
+requires = ["setuptools>=65"]
+build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["env", "server"]
